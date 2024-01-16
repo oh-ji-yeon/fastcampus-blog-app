@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { Route, Routes, Navigate } from 'react-router-dom';
 import Home from 'pages/home';
 import PostList from 'pages/posts';
@@ -9,18 +11,32 @@ import LoginPage from 'pages/login';
 import SignUpPage from 'pages/signup';
 
 export default function Router() {
+    // firebase Auth가 인증되었으면 ture로 변경해주는 로직 추가
+    const [isAuthenticated, setIsAuthenticated] = useState<Boolean>(false);
+
     return (
     <>
     <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/posts" element={<PostList />} />
-        <Route path="/posts/:id" element={<PostDetail />} />
-        <Route path="/posts/new" element={<PostNew />} />
-        <Route path="/posts/edit/:id" element={<PostEdit />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="*" element={<Navigate replace to="/" />} />
+        {isAuthenticated ? (
+            <>
+            <Route path="/" element={<Home />} />
+            <Route path="/posts" element={<PostList />} />
+            <Route path="/posts/:id" element={<PostDetail />} />
+            <Route path="/posts/new" element={<PostNew />} />
+            <Route path="/posts/edit/:id" element={<PostEdit />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="*" element={<Navigate replace to="/" />} />
+            </>
+        ) : (
+            <>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="*" element={<LoginPage />} />
+            </>
+            
+        )}
         </Routes>
     </>
     );
