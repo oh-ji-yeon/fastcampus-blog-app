@@ -10,10 +10,11 @@ import ProfilePage from 'pages/profile';
 import LoginPage from 'pages/login';
 import SignUpPage from 'pages/signup';
 
-export default function Router() {
-    // firebase Auth가 인증되었으면 ture로 변경해주는 로직 추가
-    const [isAuthenticated, setIsAuthenticated] = useState<Boolean>(false);
+interface RouterProps {
+    isAuthenticated : boolean;
+}
 
+export default function Router({isAuthenticated} : RouterProps) {
     return (
     <>
     <Routes>
