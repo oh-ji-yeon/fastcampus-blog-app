@@ -6,7 +6,7 @@ const IMAGE_3_URL = "https://images.unsplash.com/photo-1667971286579-63a5222780f
 
 export default function Carousel() {
     const [activeImage, setActiveImage] = useState(1);
-    console.log(activeImage);
+    // console.log(activeImage);
 
     return (
     <div>
