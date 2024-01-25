@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { PostProps } from "./PostList";
-import { doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "firebaseApp";
 import Loader from "./Loader";
+import { toast } from "react-toastify";
 
 export default function PostDetail() {
     const [post, setPost] = useState<PostProps | null>(null);
     const params = useParams();
+    const navigate = useNavigate();
     // console.log(params?.id);
 
     const getPost = async(id: string) => {
@@ -20,8 +22,16 @@ export default function PostDetail() {
         }
     };
 
-    const handleDelete = () => {
-        console.log("delete!");
+    const handleDelete = async() => {
+        // console.log("delete!");
+        const confirm = window.confirm("해당 게시물을 삭제하시겠습니까?");
+
+        if(confirm && post && post.id) {
+            // console.log("Yes!");
+            await deleteDoc(doc(db, "posts", post.id));
+            toast.success("게시글을 삭제했습니다.");
+            navigate("/");
+        }
     };
 
     // console.log(post);

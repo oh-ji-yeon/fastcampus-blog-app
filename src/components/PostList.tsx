@@ -1,8 +1,9 @@
 import AuthContext from "context/AuthContext";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, orderBy, query, where } from "firebase/firestore";
 import { db } from "firebaseApp";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface PostListProps {
     hasNavigation?: boolean;
@@ -27,7 +28,21 @@ export default function PostList({ hasNavigation = true}: PostListProps) {
     const { user } = useContext(AuthContext);
 
     const getPosts = async() => {
-        const datas = await getDocs(collection(db, "posts"));
+        setPosts([]); // 초기화
+        
+        // 정렬을 위한 orderBy 사용
+        let postsRef = collection(db, "posts");
+        let postsQuery;
+
+        if(activeTab === "my" && user) {
+            // 나의 글만 필터링
+            postsQuery = query(postsRef, where("uid", "==", user.uid));
+        } else {
+            // 모든 글 보여주기
+            postsQuery = query(postsRef, orderBy("createdAt", "asc"));
+        }
+
+        const datas = await getDocs(postsQuery);
 
         // console.log(datas);
 
@@ -38,7 +53,17 @@ export default function PostList({ hasNavigation = true}: PostListProps) {
         });
     };
 
-    // console.log(posts);
+    const handleDelete = async(id: string) => {
+        const confirm = window.confirm("해당 게시물을 삭제하시겠습니까?");
+
+        if(confirm && id) {
+            await deleteDoc(doc(db, "posts", id));
+            toast.success("게시글을 삭제했습니다.");
+            getPosts(); // 변경된 post list를 다시 가져옴.
+        }
+    }
+
+    console.log(posts);
 
     useEffect(() => {
         getPosts();
@@ -74,7 +99,7 @@ export default function PostList({ hasNavigation = true}: PostListProps) {
                     </Link>
                     {post?.email === user?.email && (
                         <div className="post__utils-box">
-                            <div className="post__delete">삭제</div>
+                            <div className="post__delete" role="presentation" onClick={() => handleDelete(post.id as string)}>삭제</div>
                             <div className="post__edit">
                                 <Link to={`/posts/edit/${post?.id}`}>수정</Link>
                             </div>
