@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 interface PostListProps {
     hasNavigation?: boolean;
+    defaultTab?: TabType | CategoryType; 
 }
 
 type TabType = "all" | "my";
@@ -20,10 +21,14 @@ export interface PostProps {
     createdAt: string;
     updatedAt: string;
     uid: string;
+    category?: CategoryType;
 }
 
-export default function PostList({ hasNavigation = true}: PostListProps) {
-    const [activeTab, setActiveTab] = useState<TabType>("all");
+export type CategoryType = "FrontEnd" | "BackEnd" | "Web" | "Native";
+export const CATEGORIES: CategoryType[] = ["FrontEnd", "BackEnd", "Web", "Native"];
+
+export default function PostList({ hasNavigation = true, defaultTab = "all"}: PostListProps) {
+    const [activeTab, setActiveTab] = useState<TabType | CategoryType>(defaultTab);
     const [posts, setPosts] = useState<PostProps[]>([]);
     const { user } = useContext(AuthContext);
 
@@ -36,10 +41,13 @@ export default function PostList({ hasNavigation = true}: PostListProps) {
 
         if(activeTab === "my" && user) {
             // 나의 글만 필터링
-            postsQuery = query(postsRef, where("uid", "==", user.uid));
-        } else {
+            postsQuery = query(postsRef, where("uid", "==", user.uid), orderBy("createdAt", "asc"));
+        } else if(activeTab === "all") {
             // 모든 글 보여주기
             postsQuery = query(postsRef, orderBy("createdAt", "asc"));
+        } else {
+            // 카테고리 글 보여주기
+            postsQuery = query(postsRef, where("category", "==", activeTab), orderBy("createdAt", "asc"));
         }
 
         const datas = await getDocs(postsQuery);
@@ -67,7 +75,7 @@ export default function PostList({ hasNavigation = true}: PostListProps) {
 
     useEffect(() => {
         getPosts();
-    }, []);
+    }, [activeTab]);
 
     return (
         <>
@@ -83,6 +91,14 @@ export default function PostList({ hasNavigation = true}: PostListProps) {
                 className={activeTab === "my" ? "post__navigation--active" : ""}>
                     나의 글
                 </div>
+                {CATEGORIES?.map((category) => (
+                    <div key={category}
+                    role="presentation"
+                    onClick={() => setActiveTab(category)}
+                    className={activeTab === category ? "post__navigation--active" : ""}>
+                        {category}
+                    </div>
+                ))}
             </div>
         )}
         <div className="post__list">
