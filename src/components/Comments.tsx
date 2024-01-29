@@ -5,59 +5,18 @@ import { db } from "firebaseApp";
 import AuthContext from "context/AuthContext";
 import { toast } from "react-toastify";
 
-const COMMENTS = [
-    {
-        id: 1,
-        email: "test@test.com",
-        content: "댓글입니다1",
-        createdAt: "2024-01-29"
-    },
-    {
-        id: 2,
-        email: "test@test.com",
-        content: "댓글입니다2",
-        createdAt: "2024-01-29"
-    },
-    {
-        id: 3,
-        email: "test@test.com",
-        content: "댓글입니다3",
-        createdAt: "2024-01-29"
-    },
-    {
-        id: 4,
-        email: "test@test.com",
-        content: "댓글입니다4",
-        createdAt: "2024-01-29"
-    },
-    {
-        id: 5,
-        email: "test@test.com",
-        content: "댓글입니다5",
-        createdAt: "2024-01-29"
-    },
-    {
-        id: 6,
-        email: "test@test.com",
-        content: "댓글입니다6",
-        createdAt: "2024-01-29"
-    },
-    {
-        id: 7,
-        email: "test@test.com",
-        content: "댓글입니다7",
-        createdAt: "2024-01-29"
-    },
-]
-
 interface CommentProps {
     post: PostProps;
+    getPost: (id: string) => Promise<void>;
 }
 
-export default function Comments({ post }: CommentProps) {
+export default function Comments({ post, getPost }: CommentProps) {
     // console.log(post);
+    // console.log(post?.comments?.slice(0)?.reverse());
     const [comment, setComment] = useState("");
     const { user } = useContext(AuthContext);
+
+    // console.log(post);
 
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const {
@@ -96,6 +55,8 @@ export default function Comments({ post }: CommentProps) {
                             second: "2-digit"
                         })
                     })
+                    // 문서 업데이트
+                    await getPost(post.id);
                 }
             }
             toast.success("댓글 생성 완료!");
@@ -118,8 +79,8 @@ export default function Comments({ post }: CommentProps) {
                 </div>
             </form>
             <div className="comments__list">
-                {COMMENTS?.map((comment) => (
-                    <div key={comment.id} className="comment__box">
+                {post?.comments?.slice(0)?.reverse().map((comment) => (
+                    <div key={comment.createdAt} className="comment__box">
                         <div className="comment__profile-box">
                             <div className="comment__email">{comment?.email}</div>
                             <div className="comment__date">{comment?.createdAt}</div>
