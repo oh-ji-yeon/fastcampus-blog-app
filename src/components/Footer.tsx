@@ -5,7 +5,7 @@ import ThemeContext from "context/ThemeContext";
 
 export default function Footer() {
     const context = useContext(ThemeContext);
-    console.log(context);
+    // console.log(context);
 
     return (
         <footer>
